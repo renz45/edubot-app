@@ -8,17 +8,32 @@ module.exports = app => {
 
   // Sends a reply comment to someone who creates comment with raised hand
   app.on('issue_comment.created', async context => {
-    if (context.payload.comment.body == "✋") {
-      context.log.info(context.payload.comment.body)
+    let phrase = "/raisehand"
+    if (context.payload.comment.body.startsWith(phrase)) {
+      let helpMessage = /[^phrase]*/.exec(context.payload.comment.body)[0]
+      // context.log.info(context.payload.issue.user.login)
+      // context.log.info(context.payload.repository.name)
 
-      let message = 'Hello! Would you like to\n' +
-      '- [ ] Raise your hand to ask for help _or_\n' +
-      '- [ ] Give sparkles for answering a question'
+      // let message = 'Hello! Would you like to\n' +
+      // '- [ ] Raise your hand to ask for help _or_\n' +
+      // '- [ ] Give sparkles for answering a question'
 
-      const issueComment = context.issue(
-        { body: message }
-      )
-      return context.github.issues.createComment(issueComment)
+      // const issueComment = context.issue(
+      //   { body: message }
+      // )
+      // return context.github.issues.createComment(issueComment)
+
+      const issue = {
+        owner: context.payload.issue.user.login,
+        repo: context.payload.repository.name,
+        title: helpMessage,
+        body: helpMessage,
+        labels: [
+          "help wanted"
+        ]
+      }
+
+      context.github.issues.create(issue)
     }
   })
 
