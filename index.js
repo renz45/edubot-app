@@ -28,6 +28,22 @@ module.exports = app => {
     }
   })
 
+  // Adds a comment when the new issue is closed
+  app.on('issues.closed', async context => {
+    // in real life this would check that this has the "help_wanted" label
+    context.log.info(context.payload)
+    // in real life maybe this would be the last person to comment?
+    helpingHand = context.payload.sender.login
+    const message = `:wave: Did @${helpingHand} answer your question? If so, consider:\n` +
+      `- giving them :sparkles: sparkles by responding with "/kudos @${helpingHand}"\n` +
+      `- [buying them a cup of coffee](github.com/sponsors/${helpingHand}) :coffee:`
+
+    const issueComment = context.issue(
+      { body: message }
+    )
+    return context.github.issues.createComment(issueComment)
+  })
+
   // Handles when the reply issue is edited to select one of the options (sparkle or ask for help)
   app.on('issue_comment.edited', async context => {
     if (context.payload.comment.body.startsWith("Hello! Would you like to")) {
